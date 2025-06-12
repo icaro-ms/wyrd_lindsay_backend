@@ -1,5 +1,7 @@
-from datetime import datetime
+from datetime import datetime, timedelta
+from zoneinfo import ZoneInfo
 from typing import Optional
+
 from app.db import (
     get_alert_by_id,
     save_alert_to_db,
@@ -9,12 +11,16 @@ from app.db import (
 )
 from app.models import LogEntry, Command
 
+# Fuso de Brasília
+BR_TZ = ZoneInfo("America/Sao_Paulo")
+
 def create_initial_history(alert_id: str):
+    now = datetime.now(BR_TZ)
     log_entry = LogEntry(
         alert_id=alert_id,
         action="Alerta gerado",
         responsible="",
-        timestamp=datetime.utcnow(),
+        timestamp=now,
         type="log"
     )
     return save_log_to_db(log_entry.dict())
@@ -24,17 +30,18 @@ def update_alert_and_create_history(alert_id: str, status: str, description: str
     if not alert:
         return None
 
+    now = datetime.now(BR_TZ)
     alert["status"] = status
     alert["description"] = description
     alert["responsible"] = responsible
-    alert["timestamp"] = datetime.utcnow().isoformat()
+    alert["timestamp"] = now.isoformat()
     save_alert_to_db(alert)
 
     log_entry = LogEntry(
         alert_id=alert_id,
         action=f"Status alterado para {status}",
         responsible=responsible,
-        timestamp=datetime.utcnow(),
+        timestamp=now,
         type="log"
     )
     save_log_to_db(log_entry.dict())
@@ -60,17 +67,22 @@ def handle_alert_action(alert_id: str, action: str):
         topic=topic,
         payload=payload,
         origin="app",
-        timestamp=datetime.utcnow().isoformat(),
+        timestamp=datetime.now(BR_TZ).isoformat(),
         qos=0
     )
     save_command_to_db(command.dict())
     return True
 
 def set_snooze_and_create_history(alert_id: str, snooze: Optional[int]) -> bool:
-    """
-    Atualiza o campo snooze_time (minutos) ou remove (None) e salva log.
-    """
-    updated = update_alert_field(alert_id, {"snooze_time": snooze})
+    now = datetime.now(BR_TZ)
+    # calcula quando a soneca termina
+    fields = {"snooze_time": snooze}
+    if snooze is not None:
+        fields["snooze_until"] = (now + timedelta(minutes=snooze)).isoformat()
+    else:
+        fields["snooze_until"] = None
+
+    updated = update_alert_field(alert_id, fields)
     if not updated:
         return False
 
@@ -79,7 +91,7 @@ def set_snooze_and_create_history(alert_id: str, snooze: Optional[int]) -> bool:
         alert_id=alert_id,
         action=action,
         responsible="",
-        timestamp=datetime.utcnow(),
+        timestamp=now,
         type="log"
     )
     save_log_to_db(log_entry.dict())
