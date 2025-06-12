@@ -1,0 +1,100 @@
+# Python
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+*.cover
+*.py,cover
+*.sql
+*.sqlite3
+*.db
+*.db-journal
+*.log
+
+# Django
+*.pot
+*.pyc
+__pycache__/
+db.sqlite3
+instance/
+.media
+.static
+
+# Environments
+.env
+.venv
+lindsay_venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+
+# Translations
+*.mo
+
+# Django stuff:
+*.log
+local_settings.py
+db.sqlite3
+
+# Static files
+/static/
+staticfiles/
+media/
+output.csv
+
+# Node.js
+node_modules/
+npm-debug.log
+
+# Azure Deployment
+*.pid
+*.log
+*.bak
+AzureFunctionsApp/
+.local
+.pytest_cache/
+.python-version
+.dump
+logs/
+.vscode/
+.DS_Store
+
+# PyCharm
+.idea/
+.azure
+test/
